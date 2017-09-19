@@ -31,30 +31,23 @@ func banner() {
 	Info("[- GITCOMMITHARVESTING by ncaio -]")
 	Info(">> caiogore [_|_] (g)mail _._ com")
 	Info("----------------------------------------------------------------------")
-	Info("WARNING - DON'T TRY THIS AGAINST HUGE REPOSITORY. Maybe OOM will kill you.")
 	fmt.Println("")
 }
 
 //
 //
 //
-func main() {
+func fmem(u string) {
 	//
 	//
 	//
-	re := flag.String("r", "repository not found - try ./githarvesting.go -r https://github.com/author/repository", "Repository: -r=https://repository")
-	flag.Parse()
-	repo := *re
+	Info("WARNING - DON'T TRY AGAINST HUGE REPOSITORY. Maybe OOM will kill you.")
 	//
 	//
 	//
-	banner()
-	//
-	//
-	//
-	Info("git clone %s", repo)
+	Info("git clone %s", u)
 	r, err := git.Clone(memory.NewStorage(), nil, &git.CloneOptions{
-		URL:      repo,
+		URL:      u,
 		Progress: os.Stdout,
 	})
 	CheckIfError(err)
@@ -66,14 +59,73 @@ func main() {
 	//
 	//
 	//
-	cIter, err := r.Log(&git.LogOptions{From: ref.Hash()})
+	rer, err := r.Log(&git.LogOptions{From: ref.Hash()})
 	CheckIfError(err)
 	//
 	//
 	//
-	err = cIter.ForEach(func(c *object.Commit) error {
+	err = rer.ForEach(func(c *object.Commit) error {
 		fmt.Println(c.Author.Name + ";" + strings.Replace(c.Author.Email, " ", "", -1))
 		return nil
 	})
 	CheckIfError(err)
+}
+
+//
+//
+//
+func lstor(url string, d string) {
+
+	Info("git clone %s %s", url, d)
+
+	r, err := git.PlainClone(d, false, &git.CloneOptions{
+		URL:      url,
+		Progress: os.Stdout,
+	})
+	CheckIfError(err)
+	//
+	//
+	//
+	ref, err := r.Head()
+	CheckIfError(err)
+	//
+	//
+	//
+	rer, err := r.Log(&git.LogOptions{From: ref.Hash()})
+	CheckIfError(err)
+	//
+	//
+	//
+	err = rer.ForEach(func(c *object.Commit) error {
+		fmt.Println(c.Author.Name + ";" + strings.Replace(c.Author.Email, " ", "", -1))
+		return nil
+	})
+	CheckIfError(err)
+	//
+	//
+	//
+	os.RemoveAll(d)
+	fmt.Println("------------------")
+	Info("%s deleted", d)
+
+}
+
+//
+//
+//
+func main() {
+	re := flag.String("r", "repository not found - try ./githarvesting.go -r https://github.com/author/repository", "Repository: -r=https://repository")
+	me := flag.String("m", "no", "Storage in-memory")
+	//pa := flag.String("d", "/tmp/_git/", "Local Storage")
+	flag.Parse()
+	repo := *re
+	memo := *me
+	//dst := *pa
+	dst := "/tmp/_git/"
+	banner()
+	if strings.Contains(memo, "yes") {
+		fmem(repo)
+	} else {
+		lstor(repo, dst)
+	}
 }
