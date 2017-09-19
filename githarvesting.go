@@ -17,6 +17,7 @@ import (
 	. "gopkg.in/src-d/go-git.v4/_examples"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"gopkg.in/src-d/go-git.v4/storage/memory"
+	"os"
 	"strings"
 )
 
@@ -53,7 +54,8 @@ func main() {
 	//
 	Info("git clone %s", repo)
 	r, err := git.Clone(memory.NewStorage(), nil, &git.CloneOptions{
-		URL: repo,
+		URL:      repo,
+		Progress: os.Stdout,
 	})
 	CheckIfError(err)
 	//
